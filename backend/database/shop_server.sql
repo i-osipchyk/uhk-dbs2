@@ -1,5 +1,9 @@
+-- create and use database
+
 create database shop;
 use shop;
+
+-- create tables
 
 create table addresses(
     address_id int auto_increment primary key,
@@ -83,3 +87,8 @@ create table products_storages(
     foreign key (size) references products(size),
     foreign key (storage_id) references storages(storage_id)
 );
+
+-- add initial admin
+
+insert into admins(first_name, last_name, email, phone_number, password_, reference_code)
+values ('Initial', 'Admin', 'initial.admin@project.com', '+420776119548', 'password', 'ref111');
