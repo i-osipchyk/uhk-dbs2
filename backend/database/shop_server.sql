@@ -21,8 +21,6 @@ create table customers(
     foreign key (address_id) references addresses(address_id)
 );
 
-drop table customers;
-
 create table admins(
     admin_id int auto_increment primary key,
     first_name varchar(20) not null,
