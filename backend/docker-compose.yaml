@@ -1,7 +1,13 @@
 version: "3.9"
 services:
+  api:
+    build: ./api
+    links:
+      - database
+    ports:
+      - "5000:5000"
   database:
-    build: .
+    build: ./database
     ports:
       - "3306:3306"
     command: --default-authentication-plugin=mysql_native_password
