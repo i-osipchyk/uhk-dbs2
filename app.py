@@ -24,33 +24,6 @@ def main():
     return render_template('index.html')
 
 
-# def test_connection():  # put application's code here
-#     config = {
-#         'user': 'root',
-#         'password': 'password',
-#         'host': 'localhost',
-#         'port': '3306',
-#         'database': 'shop',
-#         'auth_plugin': 'mysql_native_password'
-#     }
-#
-#     connection = mysql.connector.connect(
-#         user='root',
-#         password='password',
-#         host='database',
-#         port='3306',
-#         database='shop',
-#         auth_plugin='mysql_native_password'
-#     )
-#
-#     cursor = connection.cursor()
-#     cursor.execute('SELECT first_name, last_name FROM admins')
-#     results = [{first_name: last_name} for (first_name, last_name) in cursor]
-#     cursor.close()
-#     connection.close()
-#
-#     return jsonpickle.encode(results)
-
 @app.route('/signup')
 def show_sign_up():
     return render_template('signup.html')
@@ -85,21 +58,30 @@ def validate_login():
 @app.route('/api/signup', methods=['POST'])
 def sign_up():
     try:
-        _name = request.form['inputName']
-        _email = request.form['inputEmail']
-        _password = request.form['inputPassword']
+        country = request.form['inputCountry']
+        city = request.form['inputCity']
+        street = request.form['inputStreet']
+        house_number = request.form['inputHouseNumber']
+        postal_code = request.form['inputPostalCode']
+
+        first_name = request.form['inputFirstName']
+        last_name = request.form['inputLastName']
+        email = request.form['inputEmail']
+        phone_number = request.form['inputPhoneNumber']
+        password_ = request.form['inputPassword']
 
         # validate the received values
-        if _name and _email and _password:
+        if country and city and street and house_number and postal_code and first_name and last_name and email and phone_number and password_:
 
             # All Good, let's call MySQL
 
             conn = mysql.connect()
             cursor = conn.cursor()
-            _hashed_password = generate_password_hash(_password)
-            cursor.callproc('sp_createUser', (_name, _email, _hashed_password))
+            _hashed_password = generate_password_hash(password_)
+            cursor.callproc('sp_createUser', (
+                country, city, street, house_number, postal_code, first_name, last_name, email, phone_number,
+                _hashed_password))
             data = cursor.fetchall()
-
             if len(data) == 0:
                 conn.commit()
                 return json.dumps({'message': 'User created successfully !'})
