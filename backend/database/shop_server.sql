@@ -56,7 +56,6 @@ create table products(
     product_id int auto_increment primary key,
     name_ varchar(20) not null,
     size varchar(5) not null,
-    image varbinary(8000) not null,
     price float not null,
     brand varchar(20) not null,
     color varchar(10) not null,
@@ -66,6 +65,14 @@ create table products(
     description_ varchar(500) not null,
     index idx_name (name_),
     index idx_size (size)
+);
+
+create table images(
+    image_id int auto_increment primary key,
+    image_ varbinary(8000) not null,
+    product_id int not null,
+    image_number int not null,
+    foreign key (product_id) references products(product_id)
 );
 
 create table order_items(
