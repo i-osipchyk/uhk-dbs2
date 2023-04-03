@@ -1,6 +1,6 @@
 import jsonpickle
 from flask import Flask, render_template, json, request, session, redirect
-from flaskext.mysql import MySQL
+from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 
@@ -18,9 +18,12 @@ mysql.init_app(app)
 
 app.secret_key = '228'
 
+
 @app.route('/')
 def main():
     return render_template('index.html')
+
+
 # def test_connection():  # put application's code here
 #     config = {
 #         'user': 'root',
