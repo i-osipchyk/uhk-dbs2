@@ -57,6 +57,8 @@ def validate_login():
 
 @app.route('/api/signup', methods=['POST'])
 def sign_up():
+    conn = mysql.connect()
+    cursor = conn.cursor()
     try:
         country = request.form['inputCountry']
         city = request.form['inputCity']
@@ -75,13 +77,13 @@ def sign_up():
 
             # All Good, let's call MySQL
 
-            conn = mysql.connect()
-            cursor = conn.cursor()
             _hashed_password = generate_password_hash(password_)
-            cursor.callproc('sp_createUser', (
+
+            cursor.callproc('sp_create_customer', (
                 country, city, street, house_number, postal_code, first_name, last_name, email, phone_number,
                 _hashed_password))
             data = cursor.fetchall()
+
             if len(data) == 0:
                 conn.commit()
                 return json.dumps({'message': 'User created successfully !'})
