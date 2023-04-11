@@ -20,7 +20,7 @@ create table customers(
     last_name varchar(20) not null,
     email varchar(50) not null,
     phone_number varchar(15),
-    password_ varchar(100) not null,
+    password_ varchar(1000) not null,
     address_id int,
     foreign key (address_id) references addresses(address_id)
 );
@@ -100,41 +100,20 @@ create table products_storages(
 insert into admins(first_name, last_name, email, phone_number, password_, reference_code)
 values ('Initial', 'Admin', 'initial.admin@project.com', '+420776119548', 'password', 'ref111');
 
-create database test;
-use test;
-
-create table user_(
-    user_id int primary key,
-    first_name varchar(20) not null,
-    last_name varchar(20) not null,
-    email varchar(50) not null,
-    phone varchar(20) not null,
-    country varchar(20) not null,
-    city varchar(20) not null,
-    street varchar(20) not null,
-    house_number int not null,
-    postal_code varchar(10) not null,
-    password_ varchar(20) not null,
-    admin_code int not null
-);
-
-create procedure store_data
-    (first_name_ varchar(20), last_name_ varchar(20), email_ varchar(50),
-    phone_ varchar(20), country_ varchar(20),
-    city_ varchar(20), street_ varchar(20),
-    house_number_ varchar(20), postal_code_ varchar(10),
-    password__ varchar(20), admin_code_ varchar(20))
-begin
-    if ( select exists(select 1 from user_ where email = email_)) then
-        select 'User exists!';
-    else
-        insert into user_
-        (
-            first_name, last_name, email, phone, country, city, street, house_number, postal_code, password_, admin_code
-        )
-        values
-        (
-            first_name_, last_name_, email_, phone_, country_, city_, street_, house_number_, postal_code_, password__, admin_code_
-        );
-    end if;
-end;
+-- create database test;
+-- use test;
+--
+-- create table user_(
+--     user_id int primary key,
+--     first_name varchar(20) not null,
+--     last_name varchar(20) not null,
+--     email varchar(50) not null,
+--     phone varchar(20) not null,
+--     country varchar(20) not null,
+--     city varchar(20) not null,
+--     street varchar(20) not null,
+--     house_number int not null,
+--     postal_code varchar(10) not null,
+--     password_ varchar(20) not null,
+--     admin_code int not null
+-- );
