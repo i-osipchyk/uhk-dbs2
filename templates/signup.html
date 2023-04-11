@@ -10,7 +10,7 @@
       integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
       crossorigin="anonymous"
     />
-    <link href="../static/signup.css" rel="stylesheet" />
+{#    <link href="../static/signup.css" rel="stylesheet" />#}
   </head>
 
   <body>
@@ -34,7 +34,7 @@
               <a href="/" class="nav-link">Home</a>
             </li>
             <li class="nav-item">
-              <a href="/signup" class="nav-link active" aria-current="page"
+              <a href="/" class="nav-link active" aria-current="page"
                 >Signup</a
               >
             </li>
@@ -49,7 +49,7 @@
       <div class="bg-light rounded-3 mb-4 p-5">
         <div class="container-fluid py-5">
           <h1 class="text-center fw-bold display-5">Bucket List App</h1>
-          <form id="form-signin" action="/api/signup" method="POST">
+          <form id="form-signin" action="/" method="POST">
              <input
               type="name"
               name="inputName"
@@ -75,7 +75,7 @@
               placeholder="Email address"
               autofocus
             />
-
+{##}
             <input
               type="text"
               name="inputPhoneNumber"
@@ -84,51 +84,51 @@
               placeholder="Phone Number"
               autofocus
             />
-
-            <input
-              type="text"
-              name="inputCountry"
-              id="inputCountry"
-              class="form-control"
-              placeholder="Country"
-              autofocus
-            />
-
-            <input
-              type="text"
-              name="inputCity"
-              id="inputCity"
-              class="form-control"
-              placeholder="City"
-              autofocus
-            />
-
-            <input
-              type="text"
-              name="inputStreet"
-              id="inputStreet"
-              class="form-control"
-              placeholder="Street"
-              autofocus
-            />
-
-            <input
-              type="text"
-              name="inputHouseNumber"
-              id="inputHouseNumber"
-              class="form-control"
-              placeholder="House Number"
-              autofocus
-            />
-
-            <input
-              type="text"
-              name="inputPostalCode"
-              id="inputPostalCode"
-              class="form-control"
-              placeholder="Postal Code"
-              autofocus
-            />
+{##}
+{#            <input#}
+{#              type="text"#}
+{#              name="inputCountry"#}
+{#              id="inputCountry"#}
+{#              class="form-control"#}
+{#              placeholder="Country"#}
+{#              autofocus#}
+{#            />#}
+{##}
+{#            <input#}
+{#              type="text"#}
+{#              name="inputCity"#}
+{#              id="inputCity"#}
+{#              class="form-control"#}
+{#              placeholder="City"#}
+{#              autofocus#}
+{#            />#}
+{##}
+{#            <input#}
+{#              type="text"#}
+{#              name="inputStreet"#}
+{#              id="inputStreet"#}
+{#              class="form-control"#}
+{#              placeholder="Street"#}
+{#              autofocus#}
+{#            />#}
+{##}
+{#            <input#}
+{#              type="text"#}
+{#              name="inputHouseNumber"#}
+{#              id="inputHouseNumber"#}
+{#              class="form-control"#}
+{#              placeholder="House Number"#}
+{#              autofocus#}
+{#            />#}
+{##}
+{#            <input#}
+{#              type="text"#}
+{#              name="inputPostalCode"#}
+{#              id="inputPostalCode"#}
+{#              class="form-control"#}
+{#              placeholder="Postal Code"#}
+{#              autofocus#}
+{#            />#}
              <input
               type="password"
               name="inputPassword"
@@ -136,13 +136,13 @@
               class="form-control"
               placeholder="Password"
             />
-             <input
-              type="password"
-              name="inputPasswordRepeat"
-              id="inputPasswordRepeat"
-              class="form-control"
-              placeholder="Repeat Password"
-            />
+{#             <input#}
+{#              type="password"#}
+{#              name="inputPasswordRepeat"#}
+{#              id="inputPasswordRepeat"#}
+{#              class="form-control"#}
+{#              placeholder="Repeat Password"#}
+{#            />#}
              <input
               type="text"
               name="inputAdminCode"
@@ -176,7 +176,7 @@
         .addEventListener("submit", async function (e) {
           e.preventDefault();
           console.log(new URLSearchParams(new FormData(e.target)).toString());
-          const res = await fetch("/api/signup", {
+          const res = await fetch("/", {
             body: new URLSearchParams(new FormData(e.target)).toString(),
             method: "POST",
             headers: {
