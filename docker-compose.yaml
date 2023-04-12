@@ -1,11 +1,20 @@
 version: "3.9"
 services:
-  api:
-    build: .
-    links:
-      - database
+  flask-api:
+    container_name: flask-api
+    build:
+      context: .
+      target: debug
+    volumes:
+      - .:/app
+    environment:
+      - FLASK_DEBUG=1
+    entrypoint: [ "python", "-m", "debugpy", "--listen", "0.0.0.0:5678", "-m", "app",  "--wait-for-client", "--multiprocess", "-m", "flask", "run", "-h", "0.0.0.0", "-p", "5000" ]
     ports:
       - "5000:5000"
+      - "5678:5678"
+    links:
+      - database
   database:
     build: database
     ports:
