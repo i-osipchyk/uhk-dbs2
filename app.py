@@ -1,5 +1,5 @@
 import jsonpickle
-from flask import Flask, render_template, json, request, session, redirect
+from flask import Flask, render_template, json, request, session, redirect, url_for
 from flask_mysqldb import MySQL
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
@@ -41,10 +41,44 @@ def index():
         )
         cursor = connection.cursor()
 
-        cursor.execute(f'INSERT INTO admins(first_name, last_name, email, phone_number, password_, reference_code) VALUES ("{first_name}", "{last_name}", "{email}", "{phone_number}", "{password}", "{reference_code}");')
+        cursor.execute(f'INSERT INTO admins(first_name, last_name, email, phone_number, password_, reference_code) '
+                       f'VALUES ("{first_name}", "{last_name}", "{email}", "{phone_number}", "{password}", '
+                       f'"{reference_code}");')
         connection.commit()
         cursor.close()
         connection.close()
+    return render_template('signup.html')
+
+
+@app.route('/admin_registration', methods=['GET', 'POST'])
+def register_admin():
+    if request.method == 'POST':
+
+        first_name = request.form['inputName']
+        last_name = request.form['inputLastName']
+        email = request.form['inputEmail']
+        phone_number = request.form['inputPhoneNumber']
+        password = generate_password_hash(request.form['inputPassword'])
+        reference_code = request.form['inputAdminCode']
+
+        connection = mysql.connector.connect(
+            user='root',
+            password='password',
+            host='database',
+            port='3306',
+            database='shop',
+            auth_plugin='mysql_native_password'
+        )
+        cursor = connection.cursor()
+
+        data = cursor.callproc('admin_registration', [first_name, last_name, email, phone_number, password,
+                                                      reference_code])
+        print(data)
+        connection.commit()
+        cursor.close()
+        connection.close()
+        return redirect(url_for('/data', error=data))
+
     return render_template('signup.html')
 
 
@@ -68,7 +102,7 @@ def display():
         )
 
     cursor = connection.cursor()
-    cursor.execute('SELECT first_name, last_name FROM admins')
+    cursor.execute('SELECT first_name, last_name FROM admins;')
     results = [{first_name: last_name} for (first_name, last_name) in cursor]
     cursor.close()
     connection.close()
