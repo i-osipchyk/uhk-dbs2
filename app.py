@@ -7,6 +7,7 @@ import mysql.connector
 # mysql = MySQL()
 app = Flask(__name__)
 
+
 # # MySQL configurations
 # app.config['MYSQL_USER'] = 'root'
 # app.config['MYSQL_PASSWORD'] = 'password'
@@ -21,39 +22,8 @@ app = Flask(__name__)
 
 
 @app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-
-        first_name = request.form['inputName']
-        last_name = request.form['inputLastName']
-        email = request.form['inputEmail']
-        phone_number = request.form['inputPhoneNumber']
-        password = request.form['inputPassword']
-        reference_code = request.form['inputAdminCode']
-
-        connection = mysql.connector.connect(
-            user='root',
-            password='password',
-            host='database',
-            port='3306',
-            database='shop',
-            auth_plugin='mysql_native_password'
-        )
-        cursor = connection.cursor()
-
-        cursor.execute(f'INSERT INTO admins(first_name, last_name, email, phone_number, password_, reference_code) '
-                       f'VALUES ("{first_name}", "{last_name}", "{email}", "{phone_number}", "{password}", '
-                       f'"{reference_code}");')
-        connection.commit()
-        cursor.close()
-        connection.close()
-    return render_template('signup.html')
-
-
-@app.route('/admin_registration', methods=['GET', 'POST'])
 def register_admin():
     if request.method == 'POST':
-
         first_name = request.form['inputName']
         last_name = request.form['inputLastName']
         email = request.form['inputEmail']
@@ -71,19 +41,24 @@ def register_admin():
         )
         cursor = connection.cursor()
 
-        data = cursor.callproc('admin_registration', [first_name, last_name, email, phone_number, password,
-                                                      reference_code])
-        print(data)
+        cursor.execute(f'select admin_registration("{first_name}", "{last_name}", "{email}", "{phone_number}", "{password}", '
+                       f'"{reference_code}");')
+        data = cursor.fetchall()
         connection.commit()
         cursor.close()
         connection.close()
-        return redirect(url_for('/data', error=data))
+        return render_template('error.html', error=data)
 
     return render_template('signup.html')
 
 
-@app.route('/data')
-def display():
+@app.route('/validate_login')
+def validate_login(message):
+    return render_template('error.html', error=message)
+
+
+@app.route('/display_data')
+def display_data():
     config = {
         'user': 'root',
         'password': 'password',
@@ -93,13 +68,13 @@ def display():
         'auth_plugin': 'mysql_native_password'
     }
     connection = mysql.connector.connect(
-            user='root',
-            password='password',
-            host='database',
-            port='3306',
-            database='shop',
-            auth_plugin='mysql_native_password'
-        )
+        user='root',
+        password='password',
+        host='database',
+        port='3306',
+        database='shop',
+        auth_plugin='mysql_native_password'
+    )
 
     cursor = connection.cursor()
     cursor.execute('SELECT first_name, last_name FROM admins;')

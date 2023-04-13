@@ -31,7 +31,7 @@ create table admins(
     last_name varchar(20) not null,
     email varchar(50) not null,
     phone_number varchar(15) not null,
-    password_ varchar(100) not null,
+    password_ varchar(1000) not null,
     reference_code varchar(10)
 );
 
@@ -100,8 +100,6 @@ create table products_storages(
 insert into admins(first_name, last_name, email, phone_number, password_, reference_code)
 values ('Initial', 'Admin', 'initial.admin@project.com', '+420776119548', 'password', 'ref111');
 
-use shop;
-
 -- procedure for finding old address or inserting a new one
 
 create procedure find_or_insert_address(
@@ -164,15 +162,14 @@ end;
 
 -- procedure for admin registration
 
-create procedure admin_registration(
-    in first_name_ varchar(20),
-    in last_name_ varchar(20),
-    in email_ varchar(50),
-    in phone_number_ varchar(15),
-    in password__ varchar(100),
-    in reference_code_ varchar(10),
-    out admin_registered varchar(30)
-)
+create function admin_registration(
+    first_name_ varchar(20),
+    last_name_ varchar(20),
+    email_ varchar(50),
+    phone_number_ varchar(15),
+    password__ varchar(1000),
+    reference_code_ varchar(10)
+) returns varchar(30) deterministic
 begin
     declare admin_exists int;
     declare reference_code_exists varchar(10);
@@ -190,11 +187,11 @@ begin
             -- register admin
             insert into admins(first_name, last_name, email, phone_number, password_)
                 values (first_name_, last_name_, email_, phone_number_, password__);
-            set admin_registered = 'Admin registered';
+            return 'Admin registered';
         else
-            set admin_registered = 'Invalid reference code';
+            return 'Invalid reference code';
         end if;
     else
-        set admin_registered = 'Admin already exists';
+        return 'Admin already exists';
     end if;
 end;
