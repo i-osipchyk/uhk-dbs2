@@ -1,9 +1,9 @@
--- create and use database
+# create and use database
 
 create database shop;
 use shop;
 
--- create tables
+# create tables
 
 create table addresses(
     address_id int auto_increment primary key,
@@ -66,7 +66,7 @@ create table products(
     gender varchar(6) not null,
     description_ varchar(500) not null,
     index idx_name (name_),
-    index idx_size (size)
+    index idx_size (size_)
 );
 
 create table images(
@@ -95,12 +95,12 @@ create table products_storages(
     foreign key (storage_id) references storages(storage_id)
 );
 
--- add initial admin
+# add initial admin
 
 insert into admins(first_name, last_name, email, phone_number, password_, reference_code)
 values ('Initial', 'Admin', 'initial.admin@project.com', '+420776119548', 'password', 'ref111');
 
--- function for finding old address or inserting a new one
+# function for finding old address or inserting a new one
 
 create function find_or_insert_address(
   country_ varchar(20),
@@ -112,20 +112,20 @@ create function find_or_insert_address(
 begin
   declare address_id_ int;
 
-  -- check if address already exists
+  # check if address already exists
   select address_id into address_id_ from addresses where country = country_ and city = city_ and street = street_ and house_number = house_number_ and postal_code = postal_code_;
 
   if address_id_ is null then
-    -- if address does not exist, insert a new row and get the generated id
+    # if address does not exist, insert a new row and get the generated id
     insert into addresses (country, city, street, house_number, postal_code) VALUES (country_, city_, street_, house_number_, postal_code_);
     return LAST_INSERT_ID();
   else
-    -- if address already exists, return its id
+    # if address already exists, return its id
     return address_id_;
   end if;
 end;
 
--- function for customer registration
+# function for customer registration
 
 create function customer_registration(
     first_name_ varchar(20),
@@ -142,18 +142,18 @@ create function customer_registration(
 begin
     declare email_exists int;
     declare phone_number_exists int;
-    -- check if customer exists
+    # check if customer exists
     select customer_id into email_exists from customers where email = email_;
 
-    -- if does not exist
+    # if does not exist
     if email_exists is null then
         select customer_id into phone_number_exists from customers where phone_number = phone_number_;
 
-        -- if does not exist
+        # if does not exist
         if phone_number_exists is null then
-            -- insert address and get its id
+            # insert address and get its id
             set @result_id = find_or_insert_address(country_, city_, street_, house_number_, postal_code_);
-            -- create new customer
+            # create new customer
             insert into customers(first_name, last_name, email, phone_number, password_, address_id)
                 values (first_name_, last_name_, email_, phone_number_, password__, @result_id);
             return 'Customer registered';
@@ -165,7 +165,7 @@ begin
     end if;
 end;
 
--- function for admin registration
+# function for admin registration
 
 create function admin_registration(
     first_name_ varchar(20),
@@ -179,17 +179,17 @@ begin
     declare admin_exists int;
     declare reference_code_exists varchar(10);
 
-    -- check if admin exists
+    # check if admin exists
     select admin_id into admin_exists from admins where email = email_;
 
-    -- if does not exists
+    # if does not exists
     if admin_exists is null then
-        -- check if reference code is valid
+        # check if reference code is valid
         select reference_code into reference_code_exists from admins where reference_code = reference_code_;
 
-        -- if valid
+        # if valid
         if reference_code_exists is not null then
-            -- register admin
+            # register admin
             insert into admins(first_name, last_name, email, phone_number, password_)
                 values (first_name_, last_name_, email_, phone_number_, password__);
             return 'Admin registered';
