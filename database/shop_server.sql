@@ -40,8 +40,10 @@ create table orders_(
     price float not null,
     order_date date not null,
     delivered boolean not null,
+    customer_id int not null,
     address_id int not null,
     admin_id int not null,
+    foreign key (customer_id) references customers(customer_id),
     foreign key (address_id) references addresses(address_id),
     foreign key (admin_id) references admins(admin_id)
 );
@@ -55,7 +57,7 @@ create table storages(
 create table products(
     product_id int auto_increment primary key,
     name_ varchar(20) not null,
-    size varchar(5) not null,
+    size_ varchar(5) not null,
     price float not null,
     brand varchar(20) not null,
     color varchar(10) not null,
@@ -86,12 +88,10 @@ create table order_items(
 );
 
 create table products_storages(
-    name_ varchar(20) primary key,
-    size varchar(5) not null,
+    product_id int primary key,
     storage_id int,
     quantity int not null,
-    foreign key (name_) references products(name_),
-    foreign key (size) references products(size),
+    foreign key (product_id) references products(product_id),
     foreign key (storage_id) references storages(storage_id)
 );
 
@@ -100,16 +100,15 @@ create table products_storages(
 insert into admins(first_name, last_name, email, phone_number, password_, reference_code)
 values ('Initial', 'Admin', 'initial.admin@project.com', '+420776119548', 'password', 'ref111');
 
--- procedure for finding old address or inserting a new one
+-- function for finding old address or inserting a new one
 
-create procedure find_or_insert_address(
-  in country_ varchar(20),
-  in city_ varchar(20),
-  in street_ varchar(30),
-  in house_number_ varchar(10),
-  in postal_code_ varchar(10),
-  out result_id int
-)
+create function find_or_insert_address(
+  country_ varchar(20),
+  city_ varchar(20),
+  street_ varchar(30),
+  house_number_ varchar(10),
+  postal_code_ varchar(10)
+) returns int deterministic
 begin
   declare address_id_ int;
 
@@ -119,48 +118,54 @@ begin
   if address_id_ is null then
     -- if address does not exist, insert a new row and get the generated id
     insert into addresses (country, city, street, house_number, postal_code) VALUES (country_, city_, street_, house_number_, postal_code_);
-    set result_id = LAST_INSERT_ID();
+    return LAST_INSERT_ID();
   else
     -- if address already exists, return its id
-    set result_id = address_id_;
+    return address_id_;
   end if;
 end;
 
--- procedure for customer registration
+-- function for customer registration
 
-create procedure customer_registration(
-    in first_name_ varchar(20),
-    in last_name_ varchar(20),
-    in email_ varchar(50),
-    in phone_number_ varchar(15),
-    in password__ varchar(1000),
-    in country_ varchar(20),
-    in city_ varchar(20),
-    in street_ varchar(30),
-    in house_number_ varchar(10),
-    in postal_code_ varchar(10),
-    out customer_registered int
-)
+create function customer_registration(
+    first_name_ varchar(20),
+    last_name_ varchar(20),
+    email_ varchar(50),
+    phone_number_ varchar(15),
+    password__ varchar(1000),
+    country_ varchar(20),
+    city_ varchar(20),
+    street_ varchar(30),
+    house_number_ varchar(10),
+    postal_code_ varchar(10)
+) returns varchar(30) deterministic
 begin
-    declare customer_exists int;
+    declare email_exists int;
+    declare phone_number_exists int;
     -- check if customer exists
-    select customer_id into customer_exists from customers where email = email_;
+    select customer_id into email_exists from customers where email = email_;
 
     -- if does not exist
-    if customer_exists is null then
-        -- insert address and get its id
-        call find_or_insert_address(country_, city_, street_, house_number_, postal_code_);
-        select @result_id;
-        -- create new customer
-        insert into customers(first_name, last_name, email, phone_number, password_, address_id)
-            values ( first_name_, last_name_, email_, phone_number_, password__, @result_id);
-        set customer_registered = 1;
+    if email_exists is null then
+        select customer_id into phone_number_exists from customers where phone_number = phone_number_;
+
+        -- if does not exist
+        if phone_number_exists is null then
+            -- insert address and get its id
+            set @result_id = find_or_insert_address(country_, city_, street_, house_number_, postal_code_);
+            -- create new customer
+            insert into customers(first_name, last_name, email, phone_number, password_, address_id)
+                values (first_name_, last_name_, email_, phone_number_, password__, @result_id);
+            return 'Customer registered';
+        else
+            return 'Phone number is already in use';
+        end if;
     else
-        set customer_exists = 0;
+        return 'Email already in use';
     end if;
 end;
 
--- procedure for admin registration
+-- function for admin registration
 
 create function admin_registration(
     first_name_ varchar(20),
