@@ -1,5 +1,7 @@
 use shop;
 
+##### FUNCTIONS #####
+
 # function for finding old address or inserting a new one
 
 create function find_or_insert_address(
@@ -100,3 +102,208 @@ begin
         return 'Admin already exists';
     end if;
 end;
+
+create function add_new_product(
+    name__ varchar(20),
+    price_ float,
+    brand_ varchar(20),
+    color_1_ varchar(10),
+    color_2_ varchar(10),
+    color_3_ varchar(10),
+    category_ varchar(10),
+    release_year_ int,
+    gender_ varchar(6),
+    description__ varchar(500)
+) returns varchar(30) deterministic
+begin
+    declare existing_product_id int;
+    # check if product with given name, colors and gender exists
+    select product_id into existing_product_id from products
+    where name_ = name__ and
+          color_1 = color_1_ and
+          color_2 = color_2_ and
+          color_3 = color_3_;
+
+    # if product does not exist
+    if existing_product_id is null then
+        # insert into products
+        insert into products(name_, price, brand, color_1, color_2, color_3, category, release_year, gender, description_)
+        values (name__, price_, brand_, color_1_, color_2_, color_3_, category_, release_year_, gender_, description__);
+        # return the result of the operation
+        return 'Product added successfully';
+    else
+        # return the result of the operation
+        return 'Product already exists';
+    end if;
+end;
+
+# function for adding new storage
+
+create function add_storage(
+    country_ varchar(20),
+    city_ varchar(20)
+) returns varchar(30) deterministic
+begin
+    # insert into storages
+    insert into storages(country, city) values (country_, city_);
+    # return the result of the operation
+    return 'Storage added successfully';
+end;
+
+# create function for adding products to storage
+
+create function add_product_to_storage(
+    name__ varchar(20),
+    color_1_ varchar(10),
+    color_2_ varchar(10),
+    color_3_ varchar(10),
+    gender_ varchar(6),
+    size_ float,
+    storage_city_ varchar(20),
+    quantity_ int
+) returns varchar(50) deterministic
+begin
+    declare product_id_ int;
+    declare storage_id_ int;
+
+    # check if product with given name, colors and gender exists in products table
+    select product_id into product_id_ from products
+    where name_ = name__ and color_1 = color_1_ and color_2 = color_2_ and color_3 = color_3_ and gender = gender_;
+
+    # if does not exist
+    if product_id_ is null then
+        # return the result of the operation
+        return 'There is no such a product';
+    else
+        # select id of one storage in given city
+        select storage_id into storage_id_ from storages
+        where city = storage_city_
+        limit 1;
+
+        # insert into product_storages
+        insert into products_storages
+        values (product_id_, size_, storage_id_, quantity_);
+        # return the result of the operation
+        return concat(name__, ' added to storage in ', storage_city_);
+    end if;
+end;
+
+# function for creating order
+
+create function add_order(
+    customer_id_ int,
+    address_id_ int
+) returns varchar(50) deterministic
+begin
+    # insert into orders_
+    insert into orders_(customer_id, address_id) values (customer_id_, address_id_);
+    # return the result of the operation
+    return last_insert_id();
+end;
+
+# function for adding product to order_items
+
+create function add_product_to_order_items(
+    order_id_ int,
+    product_id_ int,
+    quantity_ int
+) returns varchar(50) deterministic
+begin
+    declare item_price_ float;
+    # set item_price equal to quantity * product.price
+    set item_price_ = quantity_ * (select price from products where product_id = product_id_);
+
+    # create order_items
+    insert into order_items(price, quantity, order_id, product_id)
+    values (item_price_, quantity_, order_id_, product_id_);
+
+    # update order price
+    update orders_
+    set price = price + item_price_
+    where order_id = order_id_;
+    # return the result of the operation
+    return 'Item successfully added to the order';
+end;
+
+# function for updating order_item
+
+create function update_price_and_quantity(
+    product_id_ int,
+    order_id_ int,
+    quantity_ int
+) returns varchar(50) deterministic
+begin
+    # update quantity and price in order_items
+    update order_items
+    set quantity = quantity + quantity_, price = quantity * (select price from products where product_id = product_id_)
+    where product_id = product_id_ and order_id = order_id_;
+
+    # update price in orders_
+    update orders_
+    set price = price + quantity_ * (select price from products where product_id = product_id_)
+    where order_id = order_id_;
+    # return the result of the operation
+    return 'Order and order_item are updated successfully';
+end;
+
+# function for adding product to order
+
+create function add_product_to_order(
+    product_id_ int,
+    quantity_ int,
+    customer_id_ int,
+    address_id_ int
+) returns varchar(100) deterministic
+begin
+    declare order_id_ int;
+    declare product_in_order int;
+
+    # check if order exists
+    select order_id into order_id_ from orders_
+    where customer_id = customer_id_;
+
+    # create order if does not exist
+    if order_id_ is null then
+        # add order and select its id
+        set order_id_ = add_order(customer_id_, address_id_);
+
+        # add product to order items
+        set @add_product_to_order_return_ = add_product_to_order_items(order_id_, product_id_, quantity_);
+        # return the result
+        return concat('Item with id ', product_id_, ' is successfully added to the order number ', order_id_);
+    else
+        # select id of existing order
+        select order_id into order_id_ from orders_
+        where customer_id = customer_id_;
+
+        # check if item is in order_items
+        select product_id into product_in_order from order_items
+        where order_id = order_id_ and product_id = product_id_;
+
+        # if product is in order_items
+        if product_in_order is not null then
+            # update quantity and price
+            set @update_order_item_return = update_price_and_quantity(product_id_, order_id_, quantity_);
+            # return the result
+            return concat('Quantity of product with id ', product_id_, ' is successfully increased for order number ', order_id_);
+        else
+            # add product to order items
+            set @add_product_to_order_return = add_product_to_order_items(order_id_, product_id_, quantity_);
+            # return the result
+            return concat('Item with id ', product_id_, ' is successfully added to the order number ', order_id_);
+        end if;
+    end if;
+end;
+
+##### TESTING CALLS #####
+
+# select customer_registration('Ivan', 'Osipchyk', 'mail@example.com', '+420123456789', 'password', 'Germany', 'Munich', 'Hansastrase', '41', '81373');
+#
+# select add_new_product('Air Jordan 1', 129.99, 'Nike/Jordan', 'red', 'white', 'black', 'lifestyle', 2022, 'male', 'Return of iconic model');
+# select add_new_product('Air Force 1', 119.99, 'Nike', 'white', 'white', 'white', 'lifestyle', 2020, 'female', 'Classic model that suits anyone');
+#
+# select add_storage('Germany', 'Dresden');
+#
+# select add_product_to_storage('Air Jordan 1', 'red', 'white', 'black', 'male', 10.5, 'Dresden', 100);
+#
+# select add_product_to_order(2, 1, 1, 1);
