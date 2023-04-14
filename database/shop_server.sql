@@ -37,7 +37,7 @@ create table admins(
 
 create table orders_(
     order_id int auto_increment primary key,
-    price float,
+    price float default 0,
     order_date date,
     delivered boolean not null default false,
     customer_id int not null,
@@ -58,8 +58,8 @@ create table products(
     price float not null,
     brand varchar(20) not null,
     color_1 varchar(10) not null,
-    color_2 varchar(10) not null,
-    color_3 varchar(10) not null,
+    color_2 varchar(10),
+    color_3 varchar(10),
     category varchar(10) not null,
     release_year int not null,
     gender varchar(6) not null,
