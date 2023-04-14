@@ -37,15 +37,13 @@ create table admins(
 
 create table orders_(
     order_id int auto_increment primary key,
-    price float not null,
-    order_date date not null,
-    delivered boolean not null,
+    price float,
+    order_date date,
+    delivered boolean not null default false,
     customer_id int not null,
     address_id int not null,
-    admin_id int not null,
     foreign key (customer_id) references customers(customer_id),
-    foreign key (address_id) references addresses(address_id),
-    foreign key (admin_id) references admins(admin_id)
+    foreign key (address_id) references addresses(address_id)
 );
 
 create table storages(
@@ -57,16 +55,16 @@ create table storages(
 create table products(
     product_id int auto_increment primary key,
     name_ varchar(20) not null,
-    size_ varchar(5) not null,
     price float not null,
     brand varchar(20) not null,
-    color varchar(10) not null,
+    color_1 varchar(10) not null,
+    color_2 varchar(10) not null,
+    color_3 varchar(10) not null,
     category varchar(10) not null,
     release_year int not null,
     gender varchar(6) not null,
     description_ varchar(500) not null,
-    index idx_name (name_),
-    index idx_size (size_)
+    index idx_name (name_)
 );
 
 create table images(
@@ -89,6 +87,7 @@ create table order_items(
 
 create table products_storages(
     product_id int primary key,
+    size float,
     storage_id int,
     quantity int not null,
     foreign key (product_id) references products(product_id),
