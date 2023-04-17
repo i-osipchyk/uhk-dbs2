@@ -86,7 +86,8 @@ create table order_items(
 );
 
 create table products_storages(
-    product_id int primary key,
+    global_id int auto_increment primary key,
+    product_id int,
     size float,
     storage_id int,
     quantity int not null,
