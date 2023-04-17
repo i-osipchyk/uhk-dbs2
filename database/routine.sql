@@ -1,5 +1,9 @@
 use shop;
 
+##### CONFIGURATIONS #####
+
+SET GLOBAL log_bin_trust_function_creators = 1;
+
 ##### FUNCTIONS #####
 
 # function for finding old address or inserting a new one
@@ -246,6 +250,43 @@ begin
     return 'Order and order_item are updated successfully';
 end;
 
+# function for checking the availability of product in the country
+
+create function check_availability(
+    product_id_ int,
+    address_id_ int,
+    quantity_ int
+) returns int
+begin
+    declare country_ varchar(20);
+    declare max_quantity int;
+
+    # select the country of the customer
+    select country into country_ from addresses
+    where address_id = address_id_;
+
+    # set the maximum quantity
+    set max_quantity = (
+        select max(quantity)
+        from products_storages ps
+        join storages s ON ps.storage_id = s.storage_id
+        where s.country = country_
+        and ps.product_id = product_id_
+    );
+
+    # if null return false
+    if max_quantity is null then
+        return 0;
+    end if;
+
+    # if less return 1, else return 0
+    if quantity_ <= max_quantity then
+        return -1;
+    else
+        return max_quantity;
+    end if;
+end;
+
 # function for adding product to order
 
 create function add_product_to_order(
@@ -257,12 +298,18 @@ create function add_product_to_order(
 begin
     declare order_id_ int;
     declare product_in_order int;
+    declare in_stock int;
 
     # check if order exists
     select order_id into order_id_ from orders_
     where customer_id = customer_id_;
 
-    # create order if does not exist
+    # check if product is available in customer's country
+    set in_stock = check_availability(product_id_, address_id_, quantity_);
+    if in_stock = 0 then
+        return 'Max quantity is null';
+    elseif in_stock = -1 then
+        # create order if does not exist
     if order_id_ is null then
         # add order and select its id
         set order_id_ = add_order(customer_id_, address_id_);
@@ -293,6 +340,9 @@ begin
             return concat('Item with id ', product_id_, ' is successfully added to the order number ', order_id_);
         end if;
     end if;
+    else
+        return concat('There are only ', in_stock, ' items in stock');
+    end if;
 end;
 
 ##### TESTING CALLS #####
@@ -300,10 +350,14 @@ end;
 # select customer_registration('Ivan', 'Osipchyk', 'mail@example.com', '+420123456789', 'password', 'Germany', 'Munich', 'Hansastrase', '41', '81373');
 #
 # select add_new_product('Air Jordan 1', 129.99, 'Nike/Jordan', 'red', 'white', 'black', 'lifestyle', 2022, 'male', 'Return of iconic model');
+#
 # select add_new_product('Air Force 1', 119.99, 'Nike', 'white', 'white', 'white', 'lifestyle', 2020, 'female', 'Classic model that suits anyone');
 #
 # select add_storage('Germany', 'Dresden');
 #
 # select add_product_to_storage('Air Jordan 1', 'red', 'white', 'black', 'male', 10.5, 'Dresden', 100);
 #
+# select check_availability(1, 1, 100);
+#
 # select add_product_to_order(2, 1, 1, 1);
+
