@@ -369,6 +369,30 @@ begin
     end if;
 end;
 
+# function for admin login
+
+create function admin_login(
+    email_ varchar(50),
+    password_log varchar(1000)
+) returns varchar(100) deterministic
+begin
+    declare email__ varchar(50);
+    declare password_ex varchar(1000);
+
+    select email into email__ from admins where email = email_;
+
+    if email__ is null then
+        return 'Account with following email was not found';
+    else
+        select password_ into password_ex from admins where email = email_;
+        if password_ex = password_log then
+            return 'Successfully logged in';
+        else
+            return 'Incorrect password';
+        end if;
+    end if;
+end;
+
 # function for changing address
 
 create function change_address(
