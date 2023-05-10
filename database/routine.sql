@@ -345,6 +345,30 @@ begin
     end if;
 end;
 
+# function for login
+
+create function login(
+    email_ varchar(50),
+    password_log varchar(1000)
+) returns varchar(100) deterministic
+begin
+    declare email__ varchar(50);
+    declare password_ex varchar(1000);
+
+    select email into email__ from customers where email = email_;
+
+    if email__ is null then
+        return 'Account with following email was not found';
+    else
+        select password_ into password_ex from customers where email = email_;
+        if password_ex = password_log then
+            return 'Successfully logged in';
+        else
+            return 'Incorrect password';
+        end if;
+    end if;
+end;
+
 ##### TESTING CALLS #####
 
 # select customer_registration('Ivan', 'Osipchyk', 'mail@example.com', '+420123456789', 'password', 'Germany', 'Munich', 'Hansastrase', '41', '81373');
