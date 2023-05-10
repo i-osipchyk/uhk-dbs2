@@ -347,7 +347,7 @@ end;
 
 # function for login
 
-create function login(
+create function customer_login(
     email_ varchar(50),
     password_log varchar(1000)
 ) returns varchar(100) deterministic
