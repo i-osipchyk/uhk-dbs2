@@ -369,6 +369,28 @@ begin
     end if;
 end;
 
+# function for changing address
+
+create function change_address(
+    customer_id_ int,
+    country_ varchar(20),
+    city_ varchar(20),
+    street_ varchar(30),
+    house_number_ varchar(10),
+    postal_code_ varchar(10)
+) returns varchar(100) deterministic
+begin
+    # get id of the address
+    set @result_id = find_or_insert_address(country_, city_, street_, house_number_, postal_code_);
+
+    # update the address in customers table
+    update customers
+    set address_id = @result_id
+    where customer_id = customer_id_;
+
+    return 'Address was changed';
+end;
+
 ##### TESTING CALLS #####
 
 # select customer_registration('Ivan', 'Osipchyk', 'mail@example.com', '+420123456789', 'password', 'Germany', 'Munich', 'Hansastrase', '41', '81373');
