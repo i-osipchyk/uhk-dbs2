@@ -443,6 +443,85 @@ begin
     end if;
 end;
 
+# function for updating product
+
+create function update_product(
+    product_id_ int,
+    name__ varchar(20),
+    price_ float,
+    brand_ varchar(20),
+    color_1_ varchar(10),
+    color_2_ varchar(10),
+    color_3_ varchar(10),
+    category_ varchar(10),
+    release_year_ int,
+    gender_ varchar(6),
+    description__ varchar(500)
+) returns varchar(100) deterministic
+begin
+    if name__ is not null then
+        update products
+        set name_=name__
+        where product_id = product_id_;
+    end if;
+
+    if price_ is not null then
+        update products
+        set price=price_
+        where product_id = product_id_;
+    end if;
+
+    if brand_ is not null then
+        update products
+        set brand=brand_
+        where product_id = product_id_;
+    end if;
+
+    if color_1_ is not null then
+        update products
+        set color_1=color_1_
+        where product_id = product_id_;
+    end if;
+
+    if color_2_ is not null then
+        update products
+        set color_2=color_2_
+        where product_id = product_id_;
+    end if;
+
+    if color_3_ is not null then
+        update products
+        set color_3=color_3_
+        where product_id = product_id_;
+    end if;
+
+    if category_ is not null then
+        update products
+        set category=category_
+        where product_id = product_id_;
+    end if;
+
+    if release_year_ is not null then
+        update products
+        set release_year=release_year_
+        where product_id = product_id_;
+    end if;
+
+    if gender_ is not null then
+        update products
+        set gender=gender_
+        where product_id = product_id_;
+    end if;
+
+    if description__ is not null then
+        update products
+        set description_=description__
+        where product_id = product_id_;
+    end if;
+
+    return 'Product was updated successfully';
+end;
+
 ##### TESTING CALLS #####
 
 # select customer_registration('Ivan', 'Osipchyk', 'mail@example.com', '+420123456789', 'password', 'Germany', 'Munich', 'Hansastrase', '41', '81373');
