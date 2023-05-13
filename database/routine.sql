@@ -554,6 +554,32 @@ begin
     return 'Quantity was updated successfully';
 end;
 
+# function for removing from basket
+
+create function remove_from_order(
+    product_id_ int,
+    customer_id_ int
+) returns varchar(100) deterministic
+begin
+    declare price_ float;
+    declare order_id_ int;
+
+    select order_id into order_id_ from orders_
+    where customer_id = customer_id_;
+
+    select price into price_ from order_items
+    where order_id = order_id_ and product_id = product_id_;
+
+    update orders_
+    set price = price - price_
+    where order_id = order_id_;
+
+    delete from order_items
+    where order_id = order_id_ and product_id = product_id_;
+
+    return 'Item deleted successfully';
+end;
+
 ##### TESTING CALLS #####
 
 # select customer_registration('Ivan', 'Osipchyk', 'mail@example.com', '+420123456789', 'password', 'Germany', 'Munich', 'Hansastrase', '41', '81373');
