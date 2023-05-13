@@ -393,9 +393,9 @@ begin
     end if;
 end;
 
-# function for changing address
+# function for updating address
 
-create function change_address(
+create function update_address(
     customer_id_ int,
     country_ varchar(20),
     city_ varchar(20),
