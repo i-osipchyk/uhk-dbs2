@@ -522,6 +522,38 @@ begin
     return 'Product was updated successfully';
 end;
 
+# function for updating quantity in the basket
+
+create function update_quantity(
+    customer_id_ int,
+    product_id_ int,
+    new_quantity int
+) returns varchar(100) deterministic
+begin
+    declare order_id_ int;
+    declare price_ float;
+    declare old_price float;
+
+    select order_id into order_id_ from orders_
+    where customer_id = customer_id_;
+
+    select price into price_ from products
+    where product_id = product_id_;
+
+    select price into old_price from order_items
+    where order_id = order_id_ and product_id = product_id_;
+
+    update order_items
+    set quantity = new_quantity, price = price_ * quantity
+    where order_id = order_id_ and product_id = product_id_;
+
+    update orders_
+    set price = price - old_price + price_ * new_quantity
+    where order_id = order_id_;
+
+    return 'Quantity was updated successfully';
+end;
+
 ##### TESTING CALLS #####
 
 # select customer_registration('Ivan', 'Osipchyk', 'mail@example.com', '+420123456789', 'password', 'Germany', 'Munich', 'Hansastrase', '41', '81373');
