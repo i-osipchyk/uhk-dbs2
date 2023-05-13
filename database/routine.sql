@@ -415,6 +415,34 @@ begin
     return 'Address was changed';
 end;
 
+# function for deleting product
+
+create function delete_product(
+    product_id_ int
+) returns varchar(100) deterministic
+begin
+    # variable to check if product exists
+    declare product_exists int;
+
+    # check if product exists
+    select product_id into product_exists from products where product_id = product_id_;
+
+    # if does not exist
+    if product_exists is null then
+        return 'Product with this id does not exist';
+    else
+        # delete images of the product
+        delete from images
+        where product_id = product_id_;
+
+        # delete product
+        delete from products
+        where product_id = product_id_;
+
+        return 'Product was deleted successfully';
+    end if;
+end;
+
 ##### TESTING CALLS #####
 
 # select customer_registration('Ivan', 'Osipchyk', 'mail@example.com', '+420123456789', 'password', 'Germany', 'Munich', 'Hansastrase', '41', '81373');
